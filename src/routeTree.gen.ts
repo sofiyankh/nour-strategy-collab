@@ -11,9 +11,12 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SkincareRouteImport } from './routes/skincare'
 import { Route as ShopRouteImport } from './routes/shop'
+import { Route as RegisterRouteImport } from './routes/register'
 import { Route as MakeupRouteImport } from './routes/makeup'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CheckoutRouteImport } from './routes/checkout'
+import { Route as AccountRouteImport } from './routes/account'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
@@ -28,9 +31,19 @@ const ShopRoute = ShopRouteImport.update({
   path: '/shop',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RegisterRoute = RegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MakeupRoute = MakeupRouteImport.update({
   id: '/makeup',
   path: '/makeup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -41,6 +54,11 @@ const ContactRoute = ContactRouteImport.update({
 const CheckoutRoute = CheckoutRouteImport.update({
   id: '/checkout',
   path: '/checkout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountRoute = AccountRouteImport.update({
+  id: '/account',
+  path: '/account',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AboutRoute = AboutRouteImport.update({
@@ -62,9 +80,12 @@ const ProductIdRoute = ProductIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/account': typeof AccountRoute
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
+  '/login': typeof LoginRoute
   '/makeup': typeof MakeupRoute
+  '/register': typeof RegisterRoute
   '/shop': typeof ShopRoute
   '/skincare': typeof SkincareRoute
   '/product/$id': typeof ProductIdRoute
@@ -72,9 +93,12 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/account': typeof AccountRoute
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
+  '/login': typeof LoginRoute
   '/makeup': typeof MakeupRoute
+  '/register': typeof RegisterRoute
   '/shop': typeof ShopRoute
   '/skincare': typeof SkincareRoute
   '/product/$id': typeof ProductIdRoute
@@ -83,9 +107,12 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/account': typeof AccountRoute
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
+  '/login': typeof LoginRoute
   '/makeup': typeof MakeupRoute
+  '/register': typeof RegisterRoute
   '/shop': typeof ShopRoute
   '/skincare': typeof SkincareRoute
   '/product/$id': typeof ProductIdRoute
@@ -95,9 +122,12 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/account'
     | '/checkout'
     | '/contact'
+    | '/login'
     | '/makeup'
+    | '/register'
     | '/shop'
     | '/skincare'
     | '/product/$id'
@@ -105,9 +135,12 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
+    | '/account'
     | '/checkout'
     | '/contact'
+    | '/login'
     | '/makeup'
+    | '/register'
     | '/shop'
     | '/skincare'
     | '/product/$id'
@@ -115,9 +148,12 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/about'
+    | '/account'
     | '/checkout'
     | '/contact'
+    | '/login'
     | '/makeup'
+    | '/register'
     | '/shop'
     | '/skincare'
     | '/product/$id'
@@ -126,9 +162,12 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  AccountRoute: typeof AccountRoute
   CheckoutRoute: typeof CheckoutRoute
   ContactRoute: typeof ContactRoute
+  LoginRoute: typeof LoginRoute
   MakeupRoute: typeof MakeupRoute
+  RegisterRoute: typeof RegisterRoute
   ShopRoute: typeof ShopRoute
   SkincareRoute: typeof SkincareRoute
   ProductIdRoute: typeof ProductIdRoute
@@ -150,11 +189,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ShopRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/makeup': {
       id: '/makeup'
       path: '/makeup'
       fullPath: '/makeup'
       preLoaderRoute: typeof MakeupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -169,6 +222,13 @@ declare module '@tanstack/react-router' {
       path: '/checkout'
       fullPath: '/checkout'
       preLoaderRoute: typeof CheckoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/account': {
+      id: '/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof AccountRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/about': {
@@ -198,9 +258,12 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  AccountRoute: AccountRoute,
   CheckoutRoute: CheckoutRoute,
   ContactRoute: ContactRoute,
+  LoginRoute: LoginRoute,
   MakeupRoute: MakeupRoute,
+  RegisterRoute: RegisterRoute,
   ShopRoute: ShopRoute,
   SkincareRoute: SkincareRoute,
   ProductIdRoute: ProductIdRoute,

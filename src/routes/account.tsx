@@ -29,7 +29,7 @@ function AccountPage() {
   const { user, loading, logout } = useAuth();
   const navigate = useNavigate();
   const [orders, setOrders] = useState<OrderRow[]>([]);
-  const [profile, setProfile] = useState<{ name?: string } | null>(null);
+  const [profile, setProfile] = useState<{ name: string | null } | null>(null);
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/login" });
