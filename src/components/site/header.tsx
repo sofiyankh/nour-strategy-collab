@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Menu, X, ShoppingBag } from "lucide-react";
+import { Menu, X, ShoppingBag, User as UserIcon, LogOut, Shield } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
+import { useAuth } from "@/lib/auth-context";
 import CartSidebar from "./cart-sidebar";
 import ThemeToggle from "./theme-toggle";
 
@@ -9,6 +10,7 @@ export default function Header() {
   const [open, setOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const { itemCount } = useCart();
+  const { user, isAdmin, logout } = useAuth();
 
   return (
     <header
@@ -66,6 +68,39 @@ export default function Header() {
 
           <div className="flex items-center gap-3">
             <ThemeToggle />
+            {isAdmin && (
+              <Link
+                to="/admin"
+                className="hidden md:inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium hover:bg-primary/20"
+              >
+                <Shield className="w-4 h-4" /> Admin
+              </Link>
+            )}
+            {user ? (
+              <>
+                <Link
+                  to="/account"
+                  className="hidden sm:inline-flex p-2 text-foreground hover:text-primary"
+                  aria-label="Account"
+                >
+                  <UserIcon className="w-5 h-5" />
+                </Link>
+                <button
+                  onClick={() => logout()}
+                  className="hidden sm:inline-flex p-2 text-foreground hover:text-primary"
+                  aria-label="Logout"
+                >
+                  <LogOut className="w-5 h-5" />
+                </button>
+              </>
+            ) : (
+              <Link
+                to="/login"
+                className="hidden sm:inline-block text-sm text-foreground hover:text-primary"
+              >
+                دخول
+              </Link>
+            )}
             <button
               onClick={() => setCartOpen(true)}
               className="relative p-2 text-foreground hover:text-primary transition-colors"
