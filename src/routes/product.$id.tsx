@@ -133,7 +133,7 @@ function ProductPage() {
               <div className="space-y-2">
                 <h3 className="font-semibold">المكونات:</h3>
                 <div className="flex flex-wrap gap-2">
-                  {product.ingredients.map((ing) => (
+                  {product.ingredients.map((ing: string) => (
                     <span
                       key={ing}
                       className="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm"
