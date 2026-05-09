@@ -182,14 +182,20 @@
 }
 
 @layer utilities {
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-  @keyframes slideUp {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeInUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes scaleIn { from { opacity: 0; transform: scale(0.85); } to { opacity: 1; transform: scale(1); } }
   .animate-fadeIn { animation: fadeIn 0.3s ease-in-out; }
   .animate-slideUp { animation: slideUp 0.3s ease-in-out; }
+  .animate-fade-in { animation: fadeInUp 0.4s ease-out; }
+  .animate-scale-in { animation: scaleIn 0.25s ease-out; }
+  .story-link { position: relative; display: inline-block; }
+  .story-link::after {
+    content: ""; position: absolute; left: 0; bottom: -2px; height: 2px; width: 100%;
+    background: var(--primary); transform: scaleX(0); transform-origin: right;
+    transition: transform 0.3s ease;
+  }
+  .story-link:hover::after { transform: scaleX(1); transform-origin: left; }
 }
+

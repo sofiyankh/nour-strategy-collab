@@ -4,6 +4,8 @@ import { useState } from "react";
 import Header from "@/components/site/header";
 import Footer from "@/components/site/footer";
 import ProductCard from "@/components/site/product-card";
+import HeroSlider from "@/components/site/hero-slider";
+import OffersStrip from "@/components/site/offers-strip";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -59,85 +61,8 @@ function HomePage() {
     <div dir="rtl" className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1">
-        {/* Promo banner */}
-        <section className="glass border-b border-border">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex items-center justify-between gap-4">
-            <div>
-              <h2 className="font-serif text-xl md:text-2xl font-bold text-primary">
-                عرض خاص محدود الوقت
-              </h2>
-              <p className="text-foreground text-sm md:text-base mt-1">
-                احصلي على{" "}
-                <span className="font-bold text-secondary">30% خصم</span> على
-                جميع منتجات العناية بالبشرة
-              </p>
-            </div>
-            <Link to="/shop" className="hidden sm:block">
-              <Button className="bg-gradient-to-r from-primary to-secondary text-primary-foreground">
-                تسوقي الآن
-              </Button>
-            </Link>
-          </div>
-        </section>
-
-        {/* Hero */}
-        <section className="relative overflow-hidden py-16 md:py-28">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid md:grid-cols-2 gap-12 items-center">
-              <div className="space-y-8">
-                <p className="text-primary font-semibold text-lg">
-                  إضاءة بشرتك الطبيعية
-                </p>
-                <h1 className="text-5xl md:text-6xl font-bold text-foreground leading-tight">
-                  نهضة جمالك
-                  <br />
-                  <span className="text-primary">من تونس</span>
-                </h1>
-                <p className="text-lg text-muted-foreground leading-relaxed max-w-lg">
-                  مستحضرات طبيعية 100% تُصنع من مكونات تونسية مختارة بعناية
-                  لبشرتك المتوسطية.
-                </p>
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <Link to="/shop">
-                    <Button className="bg-gradient-to-r from-primary to-secondary text-primary-foreground text-lg px-8 py-6 h-auto rounded-xl shadow-lg">
-                      اكتشفي المنتجات
-                      <ArrowLeft className="w-5 h-5 mr-2" />
-                    </Button>
-                  </Link>
-                  <Link to="/about">
-                    <Button
-                      variant="outline"
-                      className="text-lg px-8 py-6 h-auto rounded-xl glass"
-                    >
-                      اقرأي قصتنا
-                    </Button>
-                  </Link>
-                </div>
-                <div className="grid grid-cols-2 gap-4 pt-8 border-t border-border">
-                  <div>
-                    <p className="text-2xl font-bold text-primary">100%</p>
-                    <p className="text-sm text-muted-foreground">مكونات طبيعية</p>
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold text-secondary">تونسية</p>
-                    <p className="text-sm text-muted-foreground">مصنوعة بفخر</p>
-                  </div>
-                </div>
-              </div>
-              <div className="relative aspect-square rounded-3xl overflow-hidden shadow-2xl">
-                <img
-                  src="/images/hero-new.jpg"
-                  alt="NOUR Beauty"
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-                <p className="absolute bottom-8 left-0 right-0 text-center text-white font-serif text-xl drop-shadow-lg">
-                  Grown here. Made for you.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
+        <HeroSlider />
+        <OffersStrip />
 
         {/* Featured products */}
         <section className="py-16 md:py-24">
