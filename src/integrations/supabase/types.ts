@@ -14,11 +14,194 @@ export type Database = {
   }
   public: {
     Tables: {
+      addresses: {
+        Row: {
+          address: string
+          city: string
+          created_at: string
+          id: string
+          is_default: boolean
+          label: string | null
+          name: string
+          phone: string
+          updated_at: string
+          user_id: string
+          zip: string | null
+        }
+        Insert: {
+          address: string
+          city: string
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          label?: string | null
+          name: string
+          phone: string
+          updated_at?: string
+          user_id: string
+          zip?: string | null
+        }
+        Update: {
+          address?: string
+          city?: string
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          label?: string | null
+          name?: string
+          phone?: string
+          updated_at?: string
+          user_id?: string
+          zip?: string | null
+        }
+        Relationships: []
+      }
+      carts: {
+        Row: {
+          items: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          items?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          items?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          body: string | null
+          created_at: string
+          for_admin: boolean
+          id: string
+          link: string | null
+          read: boolean
+          title: string
+          type: Database["public"]["Enums"]["notification_type"]
+          user_id: string | null
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          for_admin?: boolean
+          id?: string
+          link?: string | null
+          read?: boolean
+          title: string
+          type: Database["public"]["Enums"]["notification_type"]
+          user_id?: string | null
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          for_admin?: boolean
+          id?: string
+          link?: string | null
+          read?: boolean
+          title?: string
+          type?: Database["public"]["Enums"]["notification_type"]
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      offers: {
+        Row: {
+          active: boolean
+          banner_image: string | null
+          category: string | null
+          created_at: string
+          description: string | null
+          description_ar: string | null
+          discount_pct: number
+          ends_at: string | null
+          id: string
+          starts_at: string | null
+          title: string
+          title_ar: string | null
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          banner_image?: string | null
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          description_ar?: string | null
+          discount_pct: number
+          ends_at?: string | null
+          id?: string
+          starts_at?: string | null
+          title: string
+          title_ar?: string | null
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          banner_image?: string | null
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          description_ar?: string | null
+          discount_pct?: number
+          ends_at?: string | null
+          id?: string
+          starts_at?: string | null
+          title?: string
+          title_ar?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      order_status_history: {
+        Row: {
+          changed_by: string | null
+          created_at: string
+          id: string
+          note: string | null
+          order_id: string
+          status: string
+        }
+        Insert: {
+          changed_by?: string | null
+          created_at?: string
+          id?: string
+          note?: string | null
+          order_id: string
+          status: string
+        }
+        Update: {
+          changed_by?: string | null
+          created_at?: string
+          id?: string
+          note?: string | null
+          order_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_status_history_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       orders: {
         Row: {
           created_at: string
+          customer_phone: string | null
           id: string
+          internal_notes: string | null
           items: Json
+          order_number: string | null
+          payment_method: Database["public"]["Enums"]["payment_method"]
           shipping_address: Json | null
           status: Database["public"]["Enums"]["order_status"]
           total_amount: number
@@ -27,8 +210,12 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          customer_phone?: string | null
           id?: string
+          internal_notes?: string | null
           items?: Json
+          order_number?: string | null
+          payment_method?: Database["public"]["Enums"]["payment_method"]
           shipping_address?: Json | null
           status?: Database["public"]["Enums"]["order_status"]
           total_amount: number
@@ -37,8 +224,12 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          customer_phone?: string | null
           id?: string
+          internal_notes?: string | null
           items?: Json
+          order_number?: string | null
+          payment_method?: Database["public"]["Enums"]["payment_method"]
           shipping_address?: Json | null
           status?: Database["public"]["Enums"]["order_status"]
           total_amount?: number
@@ -131,6 +322,36 @@ export type Database = {
         }
         Relationships: []
       }
+      reviews: {
+        Row: {
+          approved: boolean
+          comment: string | null
+          created_at: string
+          id: string
+          product_id: string
+          rating: number
+          user_id: string
+        }
+        Insert: {
+          approved?: boolean
+          comment?: string | null
+          created_at?: string
+          id?: string
+          product_id: string
+          rating: number
+          user_id: string
+        }
+        Update: {
+          approved?: boolean
+          comment?: string | null
+          created_at?: string
+          id?: string
+          product_id?: string
+          rating?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -152,6 +373,27 @@ export type Database = {
         }
         Relationships: []
       }
+      wishlists: {
+        Row: {
+          created_at: string
+          id: string
+          product_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          product_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          product_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -167,12 +409,20 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "customer"
+      notification_type:
+        | "order_placed"
+        | "order_status"
+        | "low_stock"
+        | "new_offer"
+        | "new_user"
+        | "system"
       order_status:
         | "pending"
         | "processing"
         | "shipped"
         | "delivered"
         | "cancelled"
+      payment_method: "cash_on_delivery"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -301,6 +551,14 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "customer"],
+      notification_type: [
+        "order_placed",
+        "order_status",
+        "low_stock",
+        "new_offer",
+        "new_user",
+        "system",
+      ],
       order_status: [
         "pending",
         "processing",
@@ -308,6 +566,7 @@ export const Constants = {
         "delivered",
         "cancelled",
       ],
+      payment_method: ["cash_on_delivery"],
     },
   },
 } as const
