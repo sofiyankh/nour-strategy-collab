@@ -5,6 +5,7 @@ import { useCart } from "@/lib/cart-context";
 import { useAuth } from "@/lib/auth-context";
 import CartSidebar from "./cart-sidebar";
 import ThemeToggle from "./theme-toggle";
+import NotificationsBell from "./notifications-bell";
 
 export default function Header() {
   const [open, setOpen] = useState(false);
@@ -13,60 +14,34 @@ export default function Header() {
   const { user, isAdmin, logout } = useAuth();
 
   return (
-    <header
-      dir="rtl"
-      className="sticky top-0 z-50 glass border-b border-border"
-    >
+    <header dir="rtl" className="sticky top-0 z-50 glass border-b border-border">
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
           <Link to="/" className="flex-shrink-0">
-            <span className="text-3xl font-serif font-bold text-primary block leading-none">
-              نور
-            </span>
-            <span className="text-xs tracking-widest text-muted-foreground">
-              NOUR
-            </span>
+            <span className="text-3xl font-serif font-bold text-primary block leading-none">نور</span>
+            <span className="text-xs tracking-widest text-muted-foreground">NOUR</span>
           </Link>
 
           <div className="hidden md:flex gap-8 items-center">
-            <Link
-              to="/shop"
-              className="text-foreground hover:text-primary transition-colors"
-              activeProps={{ className: "text-primary font-semibold" }}
-            >
-              المنتجات
-            </Link>
-            <Link
-              to="/skincare"
-              className="text-foreground hover:text-primary transition-colors"
-              activeProps={{ className: "text-primary font-semibold" }}
-            >
-              العناية بالبشرة
-            </Link>
-            <Link
-              to="/makeup"
-              className="text-foreground hover:text-primary transition-colors"
-              activeProps={{ className: "text-primary font-semibold" }}
-            >
-              المكياج
-            </Link>
-            <Link
-              to="/about"
-              className="text-foreground hover:text-primary transition-colors"
-              activeProps={{ className: "text-primary font-semibold" }}
-            >
-              قصتنا
-            </Link>
-            <Link
-              to="/contact"
-              className="text-foreground hover:text-primary transition-colors"
-              activeProps={{ className: "text-primary font-semibold" }}
-            >
-              تواصل معنا
-            </Link>
+            {[
+              { to: "/shop", label: "المنتجات" },
+              { to: "/skincare", label: "العناية بالبشرة" },
+              { to: "/makeup", label: "المكياج" },
+              { to: "/about", label: "قصتنا" },
+              { to: "/contact", label: "تواصل معنا" },
+            ].map((l) => (
+              <Link
+                key={l.to}
+                to={l.to}
+                className="text-foreground hover:text-primary transition-colors story-link"
+                activeProps={{ className: "text-primary font-semibold" }}
+              >
+                {l.label}
+              </Link>
+            ))}
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <ThemeToggle />
             {isAdmin && (
               <Link
@@ -76,28 +51,18 @@ export default function Header() {
                 <Shield className="w-4 h-4" /> Admin
               </Link>
             )}
+            <NotificationsBell />
             {user ? (
               <>
-                <Link
-                  to="/account"
-                  className="hidden sm:inline-flex p-2 text-foreground hover:text-primary"
-                  aria-label="Account"
-                >
+                <Link to="/account" className="hidden sm:inline-flex p-2 text-foreground hover:text-primary" aria-label="Account">
                   <UserIcon className="w-5 h-5" />
                 </Link>
-                <button
-                  onClick={() => logout()}
-                  className="hidden sm:inline-flex p-2 text-foreground hover:text-primary"
-                  aria-label="Logout"
-                >
+                <button onClick={() => logout()} className="hidden sm:inline-flex p-2 text-foreground hover:text-primary" aria-label="Logout">
                   <LogOut className="w-5 h-5" />
                 </button>
               </>
             ) : (
-              <Link
-                to="/login"
-                className="hidden sm:inline-block text-sm text-foreground hover:text-primary"
-              >
+              <Link to="/login" className="hidden sm:inline-block text-sm text-foreground hover:text-primary">
                 دخول
               </Link>
             )}
@@ -108,16 +73,15 @@ export default function Header() {
             >
               <ShoppingBag className="w-5 h-5" />
               {itemCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                <span
+                  key={itemCount}
+                  className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center animate-scale-in"
+                >
                   {itemCount}
                 </span>
               )}
             </button>
-            <button
-              onClick={() => setOpen(!open)}
-              className="md:hidden p-2 text-foreground hover:text-primary"
-              aria-label="Menu"
-            >
+            <button onClick={() => setOpen(!open)} className="md:hidden p-2 text-foreground hover:text-primary" aria-label="Menu">
               {open ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
           </div>
@@ -131,6 +95,8 @@ export default function Header() {
               { to: "/makeup", label: "المكياج" },
               { to: "/about", label: "قصتنا" },
               { to: "/contact", label: "تواصل معنا" },
+              ...(user ? [{ to: "/account", label: "حسابي" }] : [{ to: "/login", label: "دخول" }]),
+              ...(isAdmin ? [{ to: "/admin", label: "لوحة التحكم" }] : []),
             ].map((l) => (
               <Link
                 key={l.to}
