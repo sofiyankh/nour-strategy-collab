@@ -8,7 +8,7 @@ import { useNotifications } from "@/lib/notifications-context";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/site/header";
 import Footer from "@/components/site/footer";
-import { LogOut, ShoppingBag, MapPin, Heart, Bell, User, Phone, MessageCircle, X, Plus, Star } from "lucide-react";
+import { LogOut, ShoppingBag, MapPin, Heart, Bell, User, MessageCircle, X, Plus, Star } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/account")({
