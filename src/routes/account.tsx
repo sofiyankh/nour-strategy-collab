@@ -8,7 +8,7 @@ import { useNotifications } from "@/lib/notifications-context";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/site/header";
 import Footer from "@/components/site/footer";
-import { LogOut, ShoppingBag, MapPin, Heart, Bell, User, Phone, MessageCircle, X, Plus, Star } from "lucide-react";
+import { LogOut, ShoppingBag, MapPin, Heart, Bell, User, MessageCircle, X, Plus, Star } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/account")({
@@ -30,36 +30,89 @@ const STATUS_LABEL: Record<string, string> = {
 function AccountPage() {
   const { user, loading, logout } = useAuth();
   const navigate = useNavigate();
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [editing, setEditing] = useState(false);
 
   useEffect(() => { if (!loading && !user) navigate({ to: "/login" }); }, [user, loading, navigate]);
+  useEffect(() => {
+    if (!user) return;
+    supabase.from("profiles").select("name").eq("id", user.id).maybeSingle()
+      .then(({ data }) => setName(data?.name || ""));
+  }, [user]);
+
   if (loading || !user) {
     return <div className="min-h-screen flex items-center justify-center"><p className="text-muted-foreground">جاري التحميل...</p></div>;
   }
+
+  const saveProfile = async () => {
+    const { error } = await supabase.from("profiles").update({ name }).eq("id", user.id);
+    if (error) return toast.error(error.message);
+    toast.success("تم الحفظ");
+    setEditing(false);
+  };
+
+  const initial = (name || user.email || "U")[0].toUpperCase();
 
   return (
     <div className="min-h-screen flex flex-col bg-background" dir="rtl">
       <Header />
       <main className="flex-1 py-8 px-4">
         <div className="max-w-6xl mx-auto">
-          <div className="bg-gradient-to-br from-primary/10 via-card to-secondary/5 rounded-2xl p-6 mb-6 border border-border">
-            <h1 className="text-3xl font-bold">مرحباً، {user.email?.split("@")[0]}</h1>
-            <p className="text-muted-foreground mt-1">لوحة حسابك الشخصي</p>
+          {/* Welcome + Profile card */}
+          <div className="relative overflow-hidden bg-gradient-to-br from-primary/15 via-card to-secondary/10 rounded-3xl p-6 md:p-8 mb-6 border border-border shadow-sm animate-fade-in">
+            <div className="absolute -top-12 -left-12 w-48 h-48 bg-primary/15 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-16 -right-8 w-56 h-56 bg-secondary/15 rounded-full blur-3xl pointer-events-none" />
+            <div className="relative flex flex-col md:flex-row md:items-center gap-6">
+              <div className="w-20 h-20 md:w-24 md:h-24 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center text-primary-foreground font-bold text-3xl md:text-4xl shadow-xl ring-4 ring-background">
+                {initial}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm text-muted-foreground mb-1">مرحباً بعودتك</p>
+                {!editing ? (
+                  <>
+                    <h1 className="text-2xl md:text-3xl font-bold truncate">{name || user.email?.split("@")[0]}</h1>
+                    <p className="text-sm text-muted-foreground mt-0.5 truncate">{user.email}</p>
+                  </>
+                ) : (
+                  <div className="grid sm:grid-cols-2 gap-2 mt-2 max-w-xl">
+                    <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="الاسم" />
+                    <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+216 ..." />
+                  </div>
+                )}
+              </div>
+              <div className="flex gap-2">
+                {!editing ? (
+                  <>
+                    <Button variant="outline" size="sm" onClick={() => setEditing(true)}>
+                      <User className="w-4 h-4 ml-1" /> تعديل
+                    </Button>
+                    <Button variant="ghost" size="sm" onClick={logout}>
+                      <LogOut className="w-4 h-4 ml-1" /> خروج
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button size="sm" onClick={saveProfile}>حفظ</Button>
+                    <Button size="sm" variant="ghost" onClick={() => setEditing(false)}>إلغاء</Button>
+                  </>
+                )}
+              </div>
+            </div>
           </div>
 
           <Tabs defaultValue="orders">
-            <TabsList className="grid grid-cols-5 mb-6">
+            <TabsList className="grid grid-cols-4 mb-6">
               <TabsTrigger value="orders"><ShoppingBag className="w-4 h-4 ml-1" /> طلباتي</TabsTrigger>
               <TabsTrigger value="wishlist"><Heart className="w-4 h-4 ml-1" /> المفضلة</TabsTrigger>
               <TabsTrigger value="addresses"><MapPin className="w-4 h-4 ml-1" /> العناوين</TabsTrigger>
               <TabsTrigger value="notifications"><Bell className="w-4 h-4 ml-1" /> الإشعارات</TabsTrigger>
-              <TabsTrigger value="profile"><User className="w-4 h-4 ml-1" /> الملف</TabsTrigger>
             </TabsList>
 
             <TabsContent value="orders"><OrdersTab /></TabsContent>
             <TabsContent value="wishlist"><WishlistTab /></TabsContent>
             <TabsContent value="addresses"><AddressesTab /></TabsContent>
             <TabsContent value="notifications"><NotificationsTab /></TabsContent>
-            <TabsContent value="profile"><ProfileTab onLogout={logout} /></TabsContent>
           </Tabs>
         </div>
       </main>
@@ -340,43 +393,3 @@ function NotificationsTab() {
   );
 }
 
-function ProfileTab({ onLogout }: { onLogout: () => Promise<void> }) {
-  const { user } = useAuth();
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  useEffect(() => {
-    if (!user) return;
-    supabase.from("profiles").select("name").eq("id", user.id).maybeSingle().then(({ data }) => setName(data?.name || ""));
-  }, [user]);
-  const save = async () => {
-    if (!user) return;
-    const { error } = await supabase.from("profiles").update({ name }).eq("id", user.id);
-    if (error) return toast.error(error.message);
-    toast.success("تم الحفظ");
-  };
-  return (
-    <div className="bg-card border border-border rounded-xl p-6 max-w-lg space-y-4">
-      <div className="flex items-center gap-4">
-        <div className="w-16 h-16 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center text-primary-foreground font-bold text-2xl">
-          {(name || user?.email || "U")[0].toUpperCase()}
-        </div>
-        <div>
-          <p className="font-semibold">{name || "بدون اسم"}</p>
-          <p className="text-sm text-muted-foreground">{user?.email}</p>
-        </div>
-      </div>
-      <div>
-        <label className="text-sm font-medium">الاسم</label>
-        <Input value={name} onChange={(e) => setName(e.target.value)} />
-      </div>
-      <div>
-        <label className="text-sm font-medium flex items-center gap-1"><Phone className="w-3 h-3" /> رقم الهاتف</label>
-        <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+216 ..." />
-      </div>
-      <div className="flex gap-2 pt-2">
-        <Button onClick={save}>حفظ</Button>
-        <Button variant="outline" onClick={onLogout}><LogOut className="w-4 h-4 ml-1" /> خروج</Button>
-      </div>
-    </div>
-  );
-}
