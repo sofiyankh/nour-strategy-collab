@@ -9,7 +9,10 @@ import OffersStrip from "@/components/site/offers-strip";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { products } from "@/lib/products";
+import { fetchProducts, type Product } from "@/lib/products";
+import { useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/")({
   head: () => ({
