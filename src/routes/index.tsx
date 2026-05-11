@@ -60,6 +60,8 @@ const ingredients = [
 ];
 
 function HomePage() {
+  const [featured, setFeatured] = useState<Product[]>([]);
+  useEffect(() => { fetchProducts().then((p) => setFeatured(p.slice(0, 4))).catch(() => {}); }, []);
   return (
     <div dir="rtl" className="min-h-screen flex flex-col">
       <Header />
@@ -79,7 +81,7 @@ function HomePage() {
               </h2>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-              {products.slice(0, 4).map((p) => (
+              {featured.map((p) => (
                 <ProductCard key={p.id} product={p} />
               ))}
             </div>
