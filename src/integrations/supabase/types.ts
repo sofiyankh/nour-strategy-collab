@@ -457,6 +457,16 @@ export type Database = {
         }
         Returns: boolean
       }
+      newsletter_count: { Args: never; Returns: number }
+      place_order: {
+        Args: {
+          _items: Json
+          _phone?: string
+          _shipping: Json
+          _shipping_fee?: number
+        }
+        Returns: string
+      }
     }
     Enums: {
       app_role: "admin" | "customer"
