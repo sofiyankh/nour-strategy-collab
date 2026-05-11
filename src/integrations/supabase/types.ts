@@ -74,6 +74,57 @@ export type Database = {
         }
         Relationships: []
       }
+      contact_messages: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          message: string
+          name: string
+          read: boolean
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          message: string
+          name: string
+          read?: boolean
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string
+          name?: string
+          read?: boolean
+        }
+        Relationships: []
+      }
+      newsletter_subscribers: {
+        Row: {
+          active: boolean
+          created_at: string
+          email: string
+          id: string
+          unsubscribe_token: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          email: string
+          id?: string
+          unsubscribe_token?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          email?: string
+          id?: string
+          unsubscribe_token?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           body: string | null
@@ -405,6 +456,16 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      newsletter_count: { Args: never; Returns: number }
+      place_order: {
+        Args: {
+          _items: Json
+          _phone?: string
+          _shipping: Json
+          _shipping_fee?: number
+        }
+        Returns: string
       }
     }
     Enums: {
