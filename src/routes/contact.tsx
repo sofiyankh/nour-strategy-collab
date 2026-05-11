@@ -1,28 +1,55 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
+import { z } from "zod";
 import { Mail, Phone, MapPin, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import Header from "@/components/site/header";
 import Footer from "@/components/site/footer";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
     meta: [
       { title: "تواصلي معنا — NOUR" },
-      {
-        name: "description",
-        content: "تواصلي مع فريق نور: استفسارات، دعم، أو شراكات.",
-      },
+      { name: "description", content: "تواصلي مع فريق نور: استفسارات، دعم، أو شراكات." },
     ],
   }),
   component: ContactPage,
 });
 
+const schema = z.object({
+  name: z.string().trim().min(2, "الاسم قصير").max(100),
+  email: z.string().trim().email("بريد غير صالح").max(255),
+  message: z.string().trim().min(5, "الرسالة قصيرة").max(2000),
+});
+
 function ContactPage() {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [sent, setSent] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const parsed = schema.safeParse(form);
+    if (!parsed.success) {
+      toast.error(parsed.error.issues[0].message);
+      return;
+    }
+    setLoading(true);
+    const { error } = await supabase.from("contact_messages").insert(parsed.data);
+    setLoading(false);
+    if (error) {
+      toast.error("تعذر الإرسال — حاولي مرة أخرى");
+      return;
+    }
+    toast.success("تم إرسال رسالتك ✓");
+    setSent(true);
+    setForm({ name: "", email: "", message: "" });
+    setTimeout(() => setSent(false), 4000);
+  };
 
   return (
     <div dir="rtl" className="min-h-screen flex flex-col">
@@ -58,42 +85,18 @@ function ContactPage() {
               ))}
             </div>
 
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                setSent(true);
-                setForm({ name: "", email: "", message: "" });
-                setTimeout(() => setSent(false), 3000);
-              }}
-              className="bg-card p-8 rounded-2xl border border-border space-y-4"
-            >
+            <form onSubmit={onSubmit} className="bg-card p-8 rounded-2xl border border-border space-y-4">
               <h2 className="text-2xl font-bold mb-4">أرسلي رسالة</h2>
-              <Input
-                placeholder="الاسم الكامل"
-                required
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-              />
-              <Input
-                type="email"
-                placeholder="البريد الإلكتروني"
-                required
-                value={form.email}
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
-              />
-              <Textarea
-                placeholder="رسالتك..."
-                rows={6}
-                required
-                value={form.message}
-                onChange={(e) => setForm({ ...form, message: e.target.value })}
-              />
-              <Button
-                type="submit"
-                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground gap-2 h-12"
-              >
+              <Input placeholder="الاسم الكامل" required maxLength={100}
+                value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+              <Input type="email" placeholder="البريد الإلكتروني" required maxLength={255}
+                value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+              <Textarea placeholder="رسالتك..." rows={6} required maxLength={2000}
+                value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} />
+              <Button type="submit" disabled={loading}
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground gap-2 h-12">
                 <Send className="w-4 h-4" />
-                {sent ? "تم الإرسال ✓" : "إرسال الرسالة"}
+                {loading ? "جاري الإرسال..." : sent ? "تم الإرسال ✓" : "إرسال الرسالة"}
               </Button>
             </form>
           </div>

@@ -1,9 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { Leaf } from "lucide-react";
 import Header from "@/components/site/header";
 import Footer from "@/components/site/footer";
 import ProductGrid from "@/components/site/product-grid";
-import { getProductsByCategory } from "@/lib/products";
+import ProductsLoading from "@/components/site/products-loading";
+import { fetchProductsByCategory, type Product } from "@/lib/products";
 
 export const Route = createFileRoute("/skincare")({
   head: () => ({
@@ -11,8 +13,7 @@ export const Route = createFileRoute("/skincare")({
       { title: "العناية بالبشرة — NOUR" },
       {
         name: "description",
-        content:
-          "منتجات عناية بالبشرة طبيعية مصنوعة من أفضل المكونات التونسية.",
+        content: "منتجات عناية بالبشرة طبيعية مصنوعة من أفضل المكونات التونسية.",
       },
     ],
   }),
@@ -20,7 +21,12 @@ export const Route = createFileRoute("/skincare")({
 });
 
 function SkincarePage() {
-  const items = getProductsByCategory("skincare");
+  const [items, setItems] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    fetchProductsByCategory("skincare").then(setItems).finally(() => setLoading(false));
+  }, []);
+
   return (
     <div dir="rtl" className="min-h-screen flex flex-col">
       <Header />
@@ -35,20 +41,17 @@ function SkincarePage() {
                 منتجات مصممة لبشرة البحر المتوسط من أفضل المكونات التونسية.
               </p>
             </div>
-            <div className="h-80 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-2xl flex items-center justify-center">
-              <div className="text-center space-y-4">
-                <div className="w-20 h-20 mx-auto rounded-lg bg-primary/20 flex items-center justify-center">
-                  <Leaf className="w-10 h-10 text-primary" />
-                </div>
-                <p className="text-muted-foreground">منتجات العناية الفاخرة</p>
-              </div>
+            <div className="h-80 rounded-2xl overflow-hidden shadow-xl">
+              <img src="/images/ingredients-new.jpg" alt="Skincare" className="w-full h-full object-cover" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }} />
             </div>
           </div>
         </section>
         <section className="py-12 md:py-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="text-3xl font-bold mb-8">منتجاتنا</h2>
-            <ProductGrid products={items} />
+            <h2 className="text-3xl font-bold mb-8 flex items-center gap-2">
+              <Leaf className="w-6 h-6 text-primary" /> منتجاتنا
+            </h2>
+            {loading ? <ProductsLoading /> : <ProductGrid products={items} />}
           </div>
         </section>
       </main>

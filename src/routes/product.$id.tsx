@@ -1,73 +1,119 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useState } from "react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { Heart, ShoppingBag, Minus, Plus, Check } from "lucide-react";
 import Header from "@/components/site/header";
 import Footer from "@/components/site/footer";
 import ProductCard from "@/components/site/product-card";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useCart } from "@/lib/cart-context";
-import { getProductById, products } from "@/lib/products";
+import { useAuth } from "@/lib/auth-context";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { fetchProductById, fetchProductsByCategory, type Product } from "@/lib/products";
 
 export const Route = createFileRoute("/product/$id")({
-  loader: ({ params }) => {
-    const product = getProductById(params.id);
-    if (!product) throw notFound();
-    return { product };
-  },
-  head: ({ loaderData }) => ({
-    meta: loaderData
-      ? [
-          { title: `${loaderData.product.nameAr} — NOUR` },
-          { name: "description", content: loaderData.product.descriptionAr },
-          { property: "og:title", content: loaderData.product.nameAr },
-          { property: "og:image", content: loaderData.product.image },
-        ]
-      : [],
-  }),
-  notFoundComponent: () => (
-    <div dir="rtl" className="min-h-screen flex flex-col">
-      <Header />
-      <main className="flex-1 flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <h1 className="text-2xl font-bold">المنتج غير موجود</h1>
-          <Link to="/shop">
-            <Button>العودة إلى المتجر</Button>
-          </Link>
-        </div>
-      </main>
-      <Footer />
-    </div>
-  ),
-  errorComponent: ({ error }) => (
-    <div className="min-h-screen flex items-center justify-center">
-      <p>خطأ: {error.message}</p>
-    </div>
-  ),
+  head: () => ({ meta: [{ title: "المنتج — NOUR" }] }),
   component: ProductPage,
 });
 
 function ProductPage() {
-  const { product } = Route.useLoaderData();
+  const { id } = Route.useParams();
   const { addToCart } = useCart();
+  const { user } = useAuth();
+  const [product, setProduct] = useState<Product | null>(null);
+  const [related, setRelated] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [wishlist, setWishlist] = useState(false);
   const [added, setAdded] = useState(false);
 
+  useEffect(() => {
+    setLoading(true);
+    fetchProductById(id)
+      .then(async (p) => {
+        setProduct(p);
+        if (p) {
+          const others = await fetchProductsByCategory(p.category);
+          setRelated(others.filter((x) => x.id !== p.id).slice(0, 4));
+        }
+      })
+      .finally(() => setLoading(false));
+  }, [id]);
+
+  useEffect(() => {
+    if (!user || !product) return;
+    supabase
+      .from("wishlists")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("product_id", product.id)
+      .maybeSingle()
+      .then(({ data }) => setWishlist(!!data));
+  }, [user, product]);
+
   const handleAdd = () => {
+    if (!product) return;
     addToCart({
       id: product.id,
-      name: product.name,
+      name: product.nameAr,
       price: product.price,
       quantity,
       image: product.image,
+      stock: product.stock ?? (product.inStock ? 999 : 0),
     });
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
   };
 
-  const related = products
-    .filter((p) => p.category === product.category && p.id !== product.id)
-    .slice(0, 4);
+  const toggleWish = async () => {
+    if (!user || !product) {
+      toast.info("سجلي الدخول لحفظ المنتج في المفضلة");
+      return;
+    }
+    if (wishlist) {
+      await supabase.from("wishlists").delete().eq("user_id", user.id).eq("product_id", product.id);
+      setWishlist(false);
+    } else {
+      const { error } = await supabase.from("wishlists").insert({ user_id: user.id, product_id: product.id });
+      if (error) return toast.error(error.message);
+      setWishlist(true);
+      toast.success("أضيف إلى المفضلة");
+    }
+  };
+
+  if (loading) {
+    return (
+      <div dir="rtl" className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-1 max-w-7xl mx-auto px-4 py-12 grid md:grid-cols-2 gap-8 w-full">
+          <Skeleton className="h-[500px] rounded-xl" />
+          <div className="space-y-4">
+            <Skeleton className="h-10 w-3/4" />
+            <Skeleton className="h-6 w-1/2" />
+            <Skeleton className="h-32 w-full" />
+            <Skeleton className="h-12 w-full" />
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (!product) {
+    return (
+      <div dir="rtl" className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-1 flex items-center justify-center">
+          <div className="text-center space-y-4">
+            <h1 className="text-2xl font-bold">المنتج غير موجود</h1>
+            <Link to="/shop"><Button>العودة إلى المتجر</Button></Link>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div dir="rtl" className="min-h-screen flex flex-col">
@@ -75,9 +121,7 @@ function ProductPage() {
       <main className="flex-1">
         <div className="bg-muted/40 px-4 py-3 border-b border-border">
           <div className="max-w-7xl mx-auto flex items-center gap-2 text-sm">
-            <Link to="/" className="text-primary hover:underline">
-              الرئيسية
-            </Link>
+            <Link to="/" className="text-primary hover:underline">الرئيسية</Link>
             <span className="text-muted-foreground">/</span>
             <Link
               to={product.category === "skincare" ? "/skincare" : "/makeup"}
@@ -97,6 +141,7 @@ function ProductPage() {
                 src={product.image}
                 alt={product.nameAr}
                 className="w-full h-full object-cover"
+                onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/products/placeholder.jpg"; }}
               />
             </div>
 
@@ -107,76 +152,46 @@ function ProductPage() {
               </div>
 
               <div className="flex items-center gap-3">
-                <span className="text-yellow-500 text-lg">
-                  {"★".repeat(Math.round(product.rating))}
-                </span>
-                <span className="text-sm text-muted-foreground">
-                  {product.rating} • {product.reviews} تقييم
-                </span>
+                <span className="text-yellow-500 text-lg">{"★".repeat(Math.round(product.rating))}</span>
+                <span className="text-sm text-muted-foreground">{product.rating} • {product.reviews} تقييم</span>
               </div>
 
               <div className="flex items-baseline gap-3">
-                <span className="text-3xl font-bold text-primary">
-                  {product.price.toFixed(2)} د.ت
-                </span>
+                <span className="text-3xl font-bold text-primary">{product.price.toFixed(2)} د.ت</span>
                 {product.originalPrice && (
-                  <span className="text-lg text-muted-foreground line-through">
-                    {product.originalPrice.toFixed(2)} د.ت
-                  </span>
+                  <span className="text-lg text-muted-foreground line-through">{product.originalPrice.toFixed(2)} د.ت</span>
                 )}
               </div>
 
-              <p className="text-muted-foreground leading-relaxed">
-                {product.descriptionAr}
-              </p>
+              <p className="text-muted-foreground leading-relaxed">{product.descriptionAr}</p>
 
-              <div className="space-y-2">
-                <h3 className="font-semibold">المكونات:</h3>
-                <div className="flex flex-wrap gap-2">
-                  {product.ingredients.map((ing: string) => (
-                    <span
-                      key={ing}
-                      className="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm"
-                    >
-                      {ing}
-                    </span>
-                  ))}
+              {product.ingredients.length > 0 && (
+                <div className="space-y-2">
+                  <h3 className="font-semibold">المكونات:</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {product.ingredients.map((ing) => (
+                      <span key={ing} className="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm">{ing}</span>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
               <div className="flex items-center gap-4">
                 <div className="flex items-center border border-border rounded-lg">
-                  <button
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="p-3 hover:bg-muted"
-                    aria-label="Decrease"
-                  >
+                  <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="p-3 hover:bg-muted" aria-label="Decrease">
                     <Minus className="w-4 h-4" />
                   </button>
                   <span className="px-4 font-semibold">{quantity}</span>
-                  <button
-                    onClick={() => setQuantity(quantity + 1)}
-                    className="p-3 hover:bg-muted"
-                    aria-label="Increase"
-                  >
+                  <button onClick={() => setQuantity(quantity + 1)} className="p-3 hover:bg-muted" aria-label="Increase">
                     <Plus className="w-4 h-4" />
                   </button>
                 </div>
-                <Button
-                  onClick={handleAdd}
-                  className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground h-12 gap-2"
-                >
+                <Button onClick={handleAdd} className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground h-12 gap-2">
                   {added ? <Check className="w-5 h-5" /> : <ShoppingBag className="w-5 h-5" />}
                   {added ? "أُضيف إلى السلة" : "أضيفي إلى السلة"}
                 </Button>
-                <button
-                  onClick={() => setWishlist(!wishlist)}
-                  aria-label="Wishlist"
-                  className="p-3 border border-border rounded-lg hover:bg-muted"
-                >
-                  <Heart
-                    className={`w-5 h-5 ${wishlist ? "fill-destructive text-destructive" : ""}`}
-                  />
+                <button onClick={toggleWish} aria-label="Wishlist" className="p-3 border border-border rounded-lg hover:bg-muted">
+                  <Heart className={`w-5 h-5 ${wishlist ? "fill-destructive text-destructive" : ""}`} />
                 </button>
               </div>
             </div>
@@ -186,9 +201,7 @@ function ProductPage() {
             <div className="mt-20">
               <h2 className="text-3xl font-bold mb-8">منتجات مشابهة</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {related.map((p) => (
-                  <ProductCard key={p.id} product={p} />
-                ))}
+                {related.map((p) => <ProductCard key={p.id} product={p} />)}
               </div>
             </div>
           )}
