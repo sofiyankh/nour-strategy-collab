@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
+import { ArrowLeft, Sparkles } from "lucide-react";
 
 interface Slide {
   badge: string;
@@ -12,7 +12,7 @@ interface Slide {
   cta: string;
   ctaLink: string;
   image: string;
-  gradient: string;
+  accent: string;
 }
 
 const slides: Slide[] = [
@@ -24,7 +24,7 @@ const slides: Slide[] = [
     cta: "تسوقي الآن",
     ctaLink: "/skincare",
     image: "/images/hero-new.jpg",
-    gradient: "from-primary/30 via-background to-secondary/15",
+    accent: "rgba(212, 165, 116, 0.35)",
   },
   {
     badge: "وصلت حديثاً",
@@ -34,7 +34,7 @@ const slides: Slide[] = [
     cta: "اكتشفي المجموعة",
     ctaLink: "/makeup",
     image: "/images/ingredients-new.jpg",
-    gradient: "from-secondary/25 via-background to-primary/15",
+    accent: "rgba(196, 132, 100, 0.35)",
   },
   {
     badge: "قصتنا",
@@ -44,99 +44,122 @@ const slides: Slide[] = [
     cta: "اقرأي قصتنا",
     ctaLink: "/about",
     image: "/images/story-new.jpg",
-    gradient: "from-accent/25 via-background to-primary/15",
+    accent: "rgba(180, 140, 110, 0.35)",
   },
 ];
 
 export default function HeroSlider() {
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, direction: "rtl", align: "start" });
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, direction: "rtl", align: "start", duration: 35 });
   const [selected, setSelected] = useState(0);
 
   const scrollTo = useCallback((i: number) => emblaApi?.scrollTo(i), [emblaApi]);
-  const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
-  const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
 
   useEffect(() => {
     if (!emblaApi) return;
     const onSelect = () => setSelected(emblaApi.selectedScrollSnap());
     emblaApi.on("select", onSelect);
     onSelect();
-    const t = setInterval(() => emblaApi.scrollNext(), 6500);
+    const t = setInterval(() => emblaApi.scrollNext(), 7000);
     return () => { clearInterval(t); emblaApi.off("select", onSelect); };
   }, [emblaApi]);
 
-  return (
-    <section className="relative w-full overflow-hidden">
-      <div className="overflow-hidden" ref={emblaRef}>
-        <div className="flex">
-          {slides.map((s, i) => (
-            <div key={i} className="flex-[0_0_100%] min-w-0">
-              <div className={`relative bg-gradient-to-br ${s.gradient} min-h-[80vh] md:min-h-[88vh] flex items-center`}>
-                {/* decorative blobs */}
-                <div className="absolute top-10 right-10 w-72 h-72 bg-primary/20 rounded-full blur-3xl animate-pulse pointer-events-none" />
-                <div className="absolute bottom-10 left-10 w-96 h-96 bg-secondary/20 rounded-full blur-3xl pointer-events-none" style={{ animation: "pulse 4s ease-in-out infinite" }} />
+  const current = slides[selected];
 
-                <div className="relative max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 grid md:grid-cols-2 gap-10 items-center py-16">
-                  <div key={`txt-${selected}-${i}`} className="space-y-7 animate-fade-in">
-                    <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-primary/20 text-primary text-sm font-semibold shadow-sm">
-                      <Sparkles className="w-4 h-4" /> {s.badge}
+  return (
+    <section className="relative w-full overflow-hidden bg-background">
+      {/* Ambient backdrop reacting to active slide */}
+      <div
+        className="absolute inset-0 transition-all duration-1000 ease-out pointer-events-none"
+        style={{
+          background: `radial-gradient(60% 50% at 80% 20%, ${current.accent}, transparent 70%), radial-gradient(50% 60% at 10% 90%, ${current.accent}, transparent 70%)`,
+        }}
+      />
+
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
+        <div className="overflow-hidden rounded-[2.5rem]" ref={emblaRef}>
+          <div className="flex">
+            {slides.map((s, i) => (
+              <div key={i} className="flex-[0_0_100%] min-w-0">
+                <div className="relative grid md:grid-cols-12 gap-6 md:gap-10 items-center min-h-[70vh] md:min-h-[78vh] p-6 md:p-12 rounded-[2.5rem] overflow-hidden glass border border-border/40">
+                  {/* Text */}
+                  <div className="md:col-span-6 lg:col-span-5 space-y-6 md:space-y-7 z-10">
+                    <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs md:text-sm font-semibold tracking-wide">
+                      <Sparkles className="w-3.5 h-3.5" /> {s.badge}
                     </span>
-                    <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold leading-[1.05]">
-                      {s.title}{" "}
-                      <span className="block mt-2 bg-gradient-to-l from-primary via-primary to-secondary bg-clip-text text-transparent">
+                    <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.05] tracking-tight">
+                      {s.title}
+                      <span className="block mt-3 bg-gradient-to-l from-primary via-primary to-secondary bg-clip-text text-transparent">
                         {s.highlight}
                       </span>
                     </h1>
-                    <p className="text-lg md:text-xl text-muted-foreground max-w-md leading-relaxed">{s.description}</p>
+                    <p className="text-base md:text-lg text-muted-foreground max-w-md leading-relaxed">
+                      {s.description}
+                    </p>
                     <div className="flex gap-3 flex-wrap pt-2">
                       <Link to={s.ctaLink}>
-                        <Button className="bg-gradient-to-l from-primary to-secondary text-primary-foreground text-lg px-8 py-6 h-auto rounded-2xl shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300">
-                          {s.cta} <ArrowLeft className="w-5 h-5 mr-2" />
+                        <Button className="bg-foreground text-background hover:bg-foreground/90 text-base px-7 py-6 h-auto rounded-full shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all">
+                          {s.cta} <ArrowLeft className="w-4 h-4 mr-2" />
                         </Button>
                       </Link>
                       <Link to="/shop">
-                        <Button variant="outline" className="text-lg px-8 py-6 h-auto rounded-2xl border-2 hover:bg-primary/5">
+                        <Button variant="ghost" className="text-base px-6 py-6 h-auto rounded-full hover:bg-foreground/5">
                           كل المنتجات
                         </Button>
                       </Link>
                     </div>
                   </div>
-                  <div key={`img-${selected}-${i}`} className="relative aspect-square rounded-[2rem] overflow-hidden shadow-2xl animate-scale-in group">
-                    <img src={s.image} alt={s.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-                    <div className="absolute -bottom-2 -right-2 w-32 h-32 bg-primary/30 rounded-full blur-2xl" />
+
+                  {/* Image */}
+                  <div className="md:col-span-6 lg:col-span-7 relative">
+                    <div className="relative aspect-[4/5] md:aspect-[5/6] w-full rounded-[2rem] overflow-hidden shadow-2xl group">
+                      <img
+                        src={s.image}
+                        alt={s.title}
+                        className="w-full h-full object-cover transition-transform duration-[1500ms] ease-out group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-tr from-foreground/30 via-transparent to-transparent" />
+                      {/* floating chip */}
+                      <div className="absolute bottom-5 right-5 glass rounded-2xl px-4 py-3 border border-white/30 backdrop-blur-xl">
+                        <p className="text-xs text-foreground/70">طبيعي 100%</p>
+                        <p className="text-sm font-bold text-foreground">صُنع في تونس</p>
+                      </div>
+                    </div>
+                    {/* halo */}
+                    <div
+                      className="absolute -inset-6 -z-10 rounded-[3rem] blur-3xl opacity-60 transition-all duration-700"
+                      style={{ background: current.accent }}
+                    />
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
 
-      <button
-        onClick={scrollPrev}
-        aria-label="Previous"
-        className="hidden md:flex absolute right-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full glass items-center justify-center hover:bg-primary/15 hover:scale-110 transition-all z-10 border border-border"
-      >
-        <ChevronRight className="w-6 h-6" />
-      </button>
-      <button
-        onClick={scrollNext}
-        aria-label="Next"
-        className="hidden md:flex absolute left-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full glass items-center justify-center hover:bg-primary/15 hover:scale-110 transition-all z-10 border border-border"
-      >
-        <ChevronLeft className="w-6 h-6" />
-      </button>
-
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2 z-10">
-        {slides.map((_, i) => (
-          <button
-            key={i}
-            onClick={() => scrollTo(i)}
-            aria-label={`Go to slide ${i + 1}`}
-            className={`h-2.5 rounded-full transition-all duration-500 ${selected === i ? "w-10 bg-primary shadow-lg shadow-primary/50" : "w-2.5 bg-foreground/30 hover:bg-foreground/50"}`}
-          />
-        ))}
+        {/* Progress indicators */}
+        <div className="mt-8 flex items-center justify-between gap-4">
+          <div className="flex gap-2">
+            {slides.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => scrollTo(i)}
+                aria-label={`Go to slide ${i + 1}`}
+                className="group relative h-1 overflow-hidden rounded-full bg-foreground/10 transition-all"
+                style={{ width: selected === i ? 56 : 24 }}
+              >
+                <span
+                  className="absolute inset-y-0 right-0 bg-foreground rounded-full transition-all duration-700"
+                  style={{ width: selected === i ? "100%" : "0%" }}
+                />
+              </button>
+            ))}
+          </div>
+          <p className="text-xs md:text-sm text-muted-foreground tabular-nums">
+            <span className="text-foreground font-semibold">{String(selected + 1).padStart(2, "0")}</span>
+            <span className="mx-2 opacity-40">/</span>
+            <span>{String(slides.length).padStart(2, "0")}</span>
+          </p>
+        </div>
       </div>
     </section>
   );
