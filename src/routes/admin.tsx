@@ -35,6 +35,7 @@ function AdminLayout() {
     { to: "/admin/products", label: "المنتجات", icon: Package },
     { to: "/admin/offers", label: "العروض", icon: Tag },
     { to: "/admin/users", label: "العملاء", icon: Users },
+    { to: "/admin/messages", label: "الرسائل", icon: MessageSquare },
   ];
 
   return (
