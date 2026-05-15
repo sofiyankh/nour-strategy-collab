@@ -228,6 +228,25 @@ function HomePage() {
 function NewsletterSection() {
   const [email, setEmail] = useState("");
   const [done, setDone] = useState(false);
+  const [count, setCount] = useState<number | null>(null);
+  useEffect(() => {
+    supabase.rpc("newsletter_count").then(({ data }) => {
+      if (typeof data === "number") setCount(data);
+    });
+  }, []);
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+    const { error } = await supabase.from("newsletter_subscribers").insert({ email });
+    if (error && !error.message.includes("duplicate")) {
+      toast.error(error.message);
+      return;
+    }
+    setDone(true);
+    setEmail("");
+    setCount((c) => (c ?? 0) + 1);
+    setTimeout(() => setDone(false), 3000);
+  };
   return (
     <section className="py-20 md:py-28 bg-gradient-to-br from-primary/5 via-background to-secondary/5">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-8">
@@ -243,17 +262,7 @@ function NewsletterSection() {
         <p className="text-lg text-muted-foreground">
           نصائح الجمال، عروض حصرية، ومنتجات جديدة. لا رسائل عشوائية.
         </p>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            if (email) {
-              setDone(true);
-              setEmail("");
-              setTimeout(() => setDone(false), 3000);
-            }
-          }}
-          className="flex flex-col sm:flex-row gap-3 max-w-xl mx-auto"
-        >
+        <form onSubmit={onSubmit} className="flex flex-col sm:flex-row gap-3 max-w-xl mx-auto">
           <div className="flex-1 relative">
             <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
             <Input
