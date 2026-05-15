@@ -77,7 +77,7 @@ function AdminOrders() {
                 {(Array.isArray(o.items) ? o.items : []).map((it: any, i: number) => (
                   <div key={i} className="flex justify-between">
                     <span>{it.name}</span>
-                    <span className="text-muted-foreground">{it.quantity}× ${it.price}</span>
+                    <span className="text-muted-foreground">{it.quantity}× {Number(it.price).toFixed(2)} د.ت</span>
                   </div>
                 ))}
               </div>
@@ -85,7 +85,7 @@ function AdminOrders() {
                 <span className="text-muted-foreground">
                   {o.shipping_address?.name} • {o.shipping_address?.phone} • {o.shipping_address?.city}
                 </span>
-                <span className="font-bold">${Number(o.total_amount).toFixed(2)}</span>
+                <span className="font-bold">{Number(o.total_amount).toFixed(2)} د.ت</span>
               </div>
             </div>
           ))}

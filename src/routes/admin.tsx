@@ -1,7 +1,7 @@
 import { createFileRoute, Outlet, Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
-import { LayoutDashboard, ShoppingCart, Package, Users, LogOut, Tag, ArrowRight } from "lucide-react";
+import { LayoutDashboard, ShoppingCart, Package, Users, LogOut, Tag, ArrowRight, MessageSquare } from "lucide-react";
 import NotificationsBell from "@/components/site/notifications-bell";
 
 export const Route = createFileRoute("/admin")({
@@ -35,6 +35,7 @@ function AdminLayout() {
     { to: "/admin/products", label: "المنتجات", icon: Package },
     { to: "/admin/offers", label: "العروض", icon: Tag },
     { to: "/admin/users", label: "العملاء", icon: Users },
+    { to: "/admin/messages", label: "الرسائل", icon: MessageSquare },
   ];
 
   return (

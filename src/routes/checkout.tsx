@@ -38,12 +38,11 @@ function CheckoutPage() {
       return;
     }
     setSubmitting(true);
-    const { error } = await supabase.from("orders").insert({
-      user_id: user.id,
-      items: items.map((i) => ({ id: i.id, name: i.name, price: i.price, quantity: i.quantity, image: i.image })),
-      total_amount: total + shipping,
-      shipping_address: form,
-      status: "pending",
+    const { error } = await supabase.rpc("place_order", {
+      _items: items.map((i) => ({ id: i.id, quantity: i.quantity })) as any,
+      _shipping: form as any,
+      _phone: form.phone,
+      _shipping_fee: shipping,
     });
     setSubmitting(false);
     if (error) {
