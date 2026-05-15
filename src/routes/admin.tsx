@@ -1,7 +1,7 @@
 import { createFileRoute, Outlet, Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
-import { LayoutDashboard, ShoppingCart, Package, Users, LogOut, Tag, ArrowRight } from "lucide-react";
+import { LayoutDashboard, ShoppingCart, Package, Users, LogOut, Tag, ArrowRight, MessageSquare } from "lucide-react";
 import NotificationsBell from "@/components/site/notifications-bell";
 
 export const Route = createFileRoute("/admin")({
