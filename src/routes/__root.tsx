@@ -5,11 +5,32 @@ import {
   Scripts,
   Link,
 } from "@tanstack/react-router";
+import { Component, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { CartProvider } from "@/lib/cart-context";
 import { AuthProvider } from "@/lib/auth-context";
 import { NotificationsProvider } from "@/lib/notifications-context";
 import { Toaster } from "@/components/ui/sonner";
+
+class ErrorBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
+  state = { error: null as Error | null };
+  static getDerivedStateFromError(error: Error) { return { error }; }
+  componentDidCatch(error: Error) { console.error("App error:", error); }
+  render() {
+    if (this.state.error) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-background px-4" dir="rtl">
+          <div className="max-w-md text-center space-y-4">
+            <h1 className="text-3xl font-bold">حدث خطأ غير متوقع</h1>
+            <p className="text-sm text-muted-foreground">{this.state.error.message}</p>
+            <button onClick={() => { this.setState({ error: null }); location.reload(); }} className="px-4 py-2 rounded-md bg-primary text-primary-foreground">إعادة المحاولة</button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 function NotFoundComponent() {
   return (
