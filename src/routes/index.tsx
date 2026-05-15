@@ -283,7 +283,7 @@ function NewsletterSection() {
         </form>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-8 pt-8 border-t border-border">
           <div className="text-center">
-            <p className="font-semibold text-foreground">+5,000</p>
+            <p className="font-semibold text-foreground">+{(count ?? 5000).toLocaleString("ar-TN")}</p>
             <p className="text-sm text-muted-foreground">عاشقة NOUR</p>
           </div>
           <div className="text-center">
