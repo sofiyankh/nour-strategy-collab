@@ -103,13 +103,15 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   return (
-    <AuthProvider>
-      <NotificationsProvider>
-        <CartProvider>
-          <Outlet />
-          <Toaster richColors position="top-center" />
-        </CartProvider>
-      </NotificationsProvider>
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <NotificationsProvider>
+          <CartProvider>
+            <Outlet />
+            <Toaster richColors position="top-center" />
+          </CartProvider>
+        </NotificationsProvider>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
